@@ -1,6 +1,8 @@
 package controller.items;
 
+import Service.Custom.ItemService;
 import Service.Custom.impl.ItemServiceImpl;
+import Service.ServiceFactory;
 import db.DBConnection;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -10,11 +12,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.TM.ItemTM;
 import model.entity.Item;
+import utill.ServiceType;
 
 import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class ItemsControllerForm implements Initializable {
@@ -52,6 +56,9 @@ public class ItemsControllerForm implements Initializable {
     @FXML
     private TextField txtUnitPrice;
 
+
+    ItemService itemService= ServiceFactory.getInstance().getServiceType(ServiceType.ITEM);
+
     @FXML
     void btnAddItemOnAction(ActionEvent event) {
 
@@ -64,7 +71,7 @@ public class ItemsControllerForm implements Initializable {
         item.setQuantity(Integer.parseInt(txtQty.getText()));
 
 
-        if(new ItemServiceImpl().addItem(item)){
+        if(itemService.addItem(item)){
             Alert alert = new Alert(Alert.AlertType.INFORMATION,"Items added successfully");
             alert.show();
             loadtable();
@@ -79,7 +86,19 @@ public class ItemsControllerForm implements Initializable {
 
     @FXML
     void btnDeleteItemOnAction(ActionEvent event) {
-        //that function write later
+       // ItemServiceImpl itemService = new ItemServiceImpl();
+        if(itemService.deleteItem(txtID.getText())){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION,"Item deleted successfully");
+            alert.show();
+            loadtable();
+        }else{
+            Alert alert= new Alert(Alert.AlertType.INFORMATION,"Item deleted unsuccessfully");
+            alert.show();
+
+        }
+
+
+
 
     }
 
@@ -93,40 +112,26 @@ public class ItemsControllerForm implements Initializable {
 
     @FXML
     void btnSearchItemOnAction(ActionEvent event) {
-        //that function add later
+        //ItemServiceImpl itemService = new ItemServiceImpl();
+
+        Item item = itemService.searchItemById(txtID.getText());
+
+        txtID.setText(item.getId());
+        txtPackSize.setText(item.getPacksize());
+        txtDescription.setValue(item.getDescription());
+        txtQty.setText(String.valueOf(item.getQuantity()));
+        txtUnitPrice.setText(String.valueOf(item.getUnitprice()));
+
+
+
 
     }
 
 
     private void loadtable() {
-        ArrayList<ItemTM> itemTMArrayList = new ArrayList<>() ;
 
-
-
-
-
-        Connection connection = null;
-        try {
-            System.out.println(DBConnection.getInstance().getConnection());
-
-            ResultSet rs= DBConnection.getInstance().getConnection().createStatement().executeQuery("SELECT * FROM Item");
-
-            while (rs.next()) {
-                itemTMArrayList.add(new ItemTM(
-                        rs.getString(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getDouble(4),
-                        rs.getInt(5)
-                ));
-                tblItem.setItems(FXCollections.observableArrayList(itemTMArrayList));
-
-
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        List<Item> allItems = itemService.getAllItems();
+        tblItem.setItems(FXCollections.observableArrayList(allItems));
 
 
     }

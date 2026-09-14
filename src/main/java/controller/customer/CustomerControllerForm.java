@@ -166,7 +166,7 @@ public class CustomerControllerForm implements Initializable {
 
 
         ClearTextToValues();
-        CustomerServiceImpl customerService = new CustomerServiceImpl();
+        //CustomerServiceImpl customerService = new CustomerServiceImpl();
 
         List<Customer> allCustomers = customerService.getAllCustomers();
 

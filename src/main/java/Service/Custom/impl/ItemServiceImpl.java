@@ -1,53 +1,33 @@
 package Service.Custom.impl;
 
-import Service.Custom.ItemService;
-import db.DBConnection;
-import model.entity.Item;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import Repository.Custom.ItemRepository;
+import Repository.RepositoryFactory;
+import Service.Custom.ItemService;
+
+import model.entity.Item;
+import utill.RepositoryType;
 import java.util.List;
 
 public class ItemServiceImpl implements ItemService {
+    ItemRepository itemRepository=RepositoryFactory.getInstance().getRepositorytype(RepositoryType.ITEM);
+
     @Override
-    public boolean addItem(Item item) {
-
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(
-                     "INSERT INTO item VALUES(?,?,?,?,?)")) {
-
-            preparedStatement.setString(1, item.getId());
-            preparedStatement.setString(2, item.getDescription());
-            preparedStatement.setString(3, item.getPacksize());
-            preparedStatement.setDouble(4, item.getUnitprice());
-            preparedStatement.setDouble(5, item.getQuantity());
-
-            return preparedStatement.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
+    public boolean addItem(Item item) {return  itemRepository.create(item);}
 
     @Override
     public boolean updateItem(Item item) {
-        return false;
+        return itemRepository.update(item);
     }
 
     @Override
-    public boolean deleteItem(String id) {
-        return false;
-    }
+    public boolean deleteItem(String id) {return itemRepository.delete(id);}
 
     @Override
     public Item searchItemById(String id) {
-        return null;
+       return itemRepository.getbyId(id);
     }
 
     @Override
-    public List<Item> getAllItems() {
-        return List.of();
-    }
+    public List<Item> getAllItems() {return itemRepository.getAll();}
 }
