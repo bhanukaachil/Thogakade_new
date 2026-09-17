@@ -3,6 +3,7 @@ package Repository.Custom.Impl;
 import Repository.Custom.CustomerRepository;
 import db.DBConnection;
 import model.entity.Customer;
+import utill.CrudUtill;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,25 +17,20 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     @Override
     public boolean create(Customer customer) {
         try {
-            Connection conn = DBConnection.getInstance().getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement("insert into customer values(?,?,?,?,?,?,?,?,?)");
 
-            preparedStatement.setString(1, customer.getId());
-            preparedStatement.setString(2, customer.getTitle());
-            preparedStatement.setString(3, customer.getName());
-            preparedStatement.setString(4, String.valueOf(customer.getDob()));
-            preparedStatement.setDouble(5, customer.getSalary());
-            preparedStatement.setString(6, customer.getAddress());
-            preparedStatement.setString(7, customer.getCity());
-            preparedStatement.setString(8, customer.getProvince());
-            preparedStatement.setString(9,customer.getPostalcode());
 
-            if(preparedStatement.executeUpdate()>0){
-                return true;
+             return CrudUtill.execute("insert into customer values(?,?,?,?,?,?,?,?,?)",
+                    customer.getId(),
+                    customer.getTitle(),
+                    customer.getName(),
+                    customer.getDob(),
+                    customer.getSalary(),
+                    customer.getAddress(),
+                    customer.getCity(),
+                    customer.getProvince(),
+                    customer.getPostalcode()
+            );
 
-            }else{
-                return false;
-            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -49,14 +45,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     @Override
     public boolean delete(String id) {
         try {
-            Connection conn = DBConnection.getInstance().getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement("delete from customer where CustID=?");
-            preparedStatement.setString(1, id);
-            if(preparedStatement.executeUpdate()>0){
-                return true;
-            }else {
-                return false;
-            }
+            return CrudUtill.execute("delete from customer where id=?", id);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -65,10 +54,8 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     @Override
     public Customer getbyId(String id) {
         try {
-            Connection conn = DBConnection.getInstance().getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement("select * from customer where CustID = ?");
-            preparedStatement.setString(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
+
+            ResultSet rs =CrudUtill.execute("select * from customer where CustID = ?", id);
             rs.next();
             Customer customer = new Customer();
             customer.setId(rs.getString(1));
@@ -94,12 +81,8 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         ArrayList<Customer> customerTMArrayList = new ArrayList<>();
 
         try {
-            Connection connection = DBConnection.getInstance().getConnection();
 
-
-            System.out.println(DBConnection.getInstance().getConnection());
-            ResultSet rs=connection.createStatement().executeQuery("SELECT * FROM Customer");
-
+           ResultSet rs= CrudUtill.execute("SELECT * FROM Customer");
 
 
             while(rs.next()){

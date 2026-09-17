@@ -3,6 +3,7 @@ package Repository.Custom.Impl;
 import Repository.Custom.ItemRepository;
 import db.DBConnection;
 import model.entity.Item;
+import utill.CrudUtill;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,17 +15,18 @@ import java.util.List;
 public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public boolean create(Item item) {
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(
-                     "INSERT INTO item VALUES(?,?,?,?,?)")) {
+        try{
 
-            preparedStatement.setString(1, item.getId());
-            preparedStatement.setString(2, item.getDescription());
-            preparedStatement.setString(3, item.getPacksize());
-            preparedStatement.setDouble(4, item.getUnitprice());
-            preparedStatement.setDouble(5, item.getQuantity());
 
-            return preparedStatement.executeUpdate() > 0;
+            return CrudUtill.execute("INSERT INTO item VALUES(?,?,?,?,?)",
+                    item.getId(),
+                    item.getDescription(),
+                    item.getPacksize(),
+                    item.getUnitprice(),
+                    item.getQuantity()
+            );
+
+
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -39,16 +41,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public boolean delete(String id) {
         try {
-            Connection conn = DBConnection.getInstance().getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM item WHERE ItemCode=?");
-            preparedStatement.setString(1, id);
-
-            if(preparedStatement.executeUpdate() > 0){
-                return true;
-
-            }else {
-                return false;
-            }
+           return CrudUtill.execute("DELETE FROM item WHERE ItemCode=?",id);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -58,14 +51,11 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item getbyId(String id) {
         try {
-            Connection conn = DBConnection.getInstance().getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM item WHERE ItemCode=?");
-            preparedStatement.setString(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+
+            ResultSet resultSet = CrudUtill.execute("SELECT * FROM item WHERE ItemCode=?",id);
 
             Item item = new Item();
 
-            System.out.println(item.getDescription());
             resultSet.next();
             item.setId(resultSet.getString(1));
             item.setDescription(resultSet.getString(2));
@@ -93,7 +83,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
 
             System.out.println(DBConnection.getInstance().getConnection());
-            ResultSet rs=connection.createStatement().executeQuery("SELECT * FROM item");
+            ResultSet rs=CrudUtill.execute("SELECT * FROM item");
 
 
 
@@ -120,6 +110,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         }
 
 
-        //return List.of();
+        
     }
 }

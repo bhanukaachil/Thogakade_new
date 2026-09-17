@@ -193,12 +193,12 @@ public class ItemsControllerForm implements Initializable {
         tblcolQty.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
         tblItem.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue);
-            setTexttoValues((ItemTM) newValue);
+            //System.out.println(newValue);
+            setTexttoValues((Item) newValue);
         });
     }
 
-    private void setTexttoValues(ItemTM itemTM) {
+    private void setTexttoValues(Item itemTM) {
         txtID.setText(itemTM.getId());
         txtPackSize.setText(itemTM.getPacksize());
         txtDescription.setValue(itemTM.getDescription());
